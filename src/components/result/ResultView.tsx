@@ -77,7 +77,7 @@ function Result({ answers }: { answers: Answers }) {
 
   return (
     <div className="space-y-10 py-4">
-      <div>
+      <div className="rise">
         <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           What you told us
         </h1>
@@ -95,7 +95,7 @@ function Result({ answers }: { answers: Answers }) {
       />
 
       {narrative === null ? null : (
-        <section aria-labelledby="narrative-heading" className="space-y-3">
+        <section aria-labelledby="narrative-heading" className="reveal space-y-3">
           <h2 id="narrative-heading" className="font-display text-2xl font-medium text-ink">
             In a few words
           </h2>
@@ -107,7 +107,7 @@ function Result({ answers }: { answers: Answers }) {
         </section>
       )}
 
-      <section aria-labelledby="radar-heading" className="space-y-4">
+      <section aria-labelledby="radar-heading" className="reveal space-y-4">
         <h2 id="radar-heading" className="font-display text-2xl font-medium text-ink">
           The six areas
         </h2>

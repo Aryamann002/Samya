@@ -114,10 +114,7 @@ export function Wizard() {
 
       <div className="space-y-5">
         {questions.map((question) => (
-          <div
-            key={question.id}
-            className="rounded-2xl border border-outline-faint bg-surface p-5 sm:p-6"
-          >
+          <div key={question.id} className="glass glass-sheen rounded-2xl p-5 sm:p-6">
             {question.kind === "chips" ? (
               <ChoiceChips
                 question={question}

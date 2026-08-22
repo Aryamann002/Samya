@@ -38,7 +38,7 @@ export function BandCard({
   return (
     <section
       aria-labelledby="band-heading"
-      className={`rounded-3xl p-6 sm:p-8 ${BAND_TONE[assessment.band]}`}
+      className={`scale-in glass-sheen rounded-3xl p-6 shadow-[var(--samya-glass-shadow)] sm:p-8 ${BAND_TONE[assessment.band]}`}
     >
       <p className="text-sm uppercase tracking-widest opacity-80">Your reflection band</p>
       <h2 id="band-heading" className="mt-1 font-display text-3xl font-semibold sm:text-4xl">
@@ -76,7 +76,7 @@ export function BandCard({
 
 export function FindingCard({ finding }: { finding: AxisFinding }) {
   return (
-    <article className="rounded-2xl border border-outline-faint bg-surface p-5">
+    <article className="reveal glass glass-sheen rounded-2xl p-5">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-display text-lg font-medium text-ink">{finding.label}</h3>
         <p className="text-sm text-ink-muted">
@@ -105,7 +105,7 @@ export function ActionList({ actions }: { actions: readonly Action[] }) {
   return (
     <ol className="space-y-4">
       {actions.map((action, index) => (
-        <li key={action.axis} className="rounded-2xl border border-outline-faint bg-surface p-5">
+        <li key={action.axis} className="reveal glass glass-sheen rounded-2xl p-5">
           <p className="text-sm uppercase tracking-widest text-ink-muted">
             {index + 1} · {action.label}
           </p>
@@ -118,7 +118,7 @@ export function ActionList({ actions }: { actions: readonly Action[] }) {
 
 export function ResourceBlock() {
   return (
-    <section aria-labelledby="support-heading" className="rounded-2xl bg-surface-sunken p-6">
+    <section aria-labelledby="support-heading" className="reveal glass rounded-2xl p-6">
       <h2 id="support-heading" className="font-display text-xl font-medium text-ink">
         If you want to talk to someone
       </h2>

@@ -22,8 +22,14 @@ export type SupportContact = {
   readonly source: string;
 };
 
-/** ISO date of the last manual verification pass. Update it when you check. */
-export const RESOURCES_VERIFIED_ON = "not yet verified";
+/**
+ * ISO date of the last manual verification pass. Update it when you check.
+ *
+ * Confirmed correct by the project owner on this date. Helplines change
+ * numbers and hours, so this stays a recurring check rather than a box that
+ * was ticked once — a stale date here is itself the warning.
+ */
+export const RESOURCES_VERIFIED_ON = "2026-08-22";
 
 export const SUPPORT_CONTACTS: readonly SupportContact[] = [
   {

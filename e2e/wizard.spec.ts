@@ -26,8 +26,20 @@ async function focusedElement(page: Page): Promise<Focused> {
   });
 }
 
-/** Tabs through one step, answering as it goes, and presses the forward button. */
-async function completeStepByKeyboard(page: Page) {
+/**
+ * Tabs through one step, answering as it goes, and presses the forward button.
+ *
+ * The waits on either side are load-bearing, not decoration. Without them the
+ * key presses can start before the step has rendered — on a cold server the
+ * first navigation is slow enough for that — and they then land on nothing.
+ * The step stays half-answered, the wizard rightly refuses to advance, and the
+ * failure surfaces several steps later as a missing heading, which looks like
+ * flakiness instead of the race it is.
+ */
+async function completeStepByKeyboard(page: Page, step: number) {
+  await expect(page.getByText(`Step ${step} of 5`)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Continue|See what you told us/ })).toBeVisible();
+
   for (let press = 0; press < 120; press += 1) {
     await page.keyboard.press("Tab");
     const focused = await focusedElement(page);
@@ -45,11 +57,25 @@ async function completeStepByKeyboard(page: Page) {
 
     if (focused.tag === "BUTTON" && /^(Continue|See what you told us)$/.test(focused.text)) {
       await page.keyboard.press("Enter");
+
+      // The wizard blocks on an unanswered question rather than advancing, so
+      // an alert here means the tabbing missed something — say so plainly
+      // instead of letting it fail as a missing heading three steps later.
+      //
+      // Filtered by text on purpose: Next ships its own `role="alert"` route
+      // announcer carrying the page title, which matches the bare role.
+      const blocked = page.getByRole("alert").filter({ hasText: /needs? an answer/ });
+      if (await blocked.isVisible().catch(() => false)) {
+        throw new Error(`Step ${step} was left incomplete: ${await blocked.innerText()}`);
+      }
+
+      if (step < 5) await expect(page.getByText(`Step ${step + 1} of 5`)).toBeVisible();
+      else await expect(page).toHaveURL(/\/result#/);
       return;
     }
   }
 
-  throw new Error("Never reached the forward button by keyboard");
+  throw new Error(`Never reached the forward button on step ${step}`);
 }
 
 test("a student can complete the whole questionnaire with the keyboard alone", async ({ page }) => {
@@ -72,8 +98,7 @@ test("a student can complete the whole questionnaire with the keyboard alone", a
   await expect(page.getByRole("heading", { name: "About you" })).toBeVisible();
 
   for (const step of [1, 2, 3, 4, 5]) {
-    await expect(page.getByText(`Step ${step} of 5`)).toBeVisible();
-    await completeStepByKeyboard(page);
+    await completeStepByKeyboard(page, step);
   }
 
   await expect(page.getByRole("heading", { name: "What you told us" })).toBeVisible();
@@ -85,7 +110,7 @@ test("the result shows a band, a radar, six areas and three actions", async ({ p
   await page.getByRole("link", { name: /^Start/ }).click();
 
   for (let step = 1; step <= 5; step += 1) {
-    await completeStepByKeyboard(page);
+    await completeStepByKeyboard(page, step);
   }
 
   await expect(page.getByRole("heading", { name: "What you told us" })).toBeVisible();
@@ -107,7 +132,7 @@ test("no answer data leaves the browser", async ({ page }) => {
 
   await page.goto("/");
   await page.getByRole("link", { name: /^Start/ }).click();
-  for (let step = 1; step <= 5; step += 1) await completeStepByKeyboard(page);
+  for (let step = 1; step <= 5; step += 1) await completeStepByKeyboard(page, step);
   await expect(page.getByRole("heading", { name: "What you told us" })).toBeVisible();
 
   // The only non-GET request is the narrative call, and it carries numbers only.

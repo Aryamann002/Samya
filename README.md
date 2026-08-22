@@ -100,6 +100,11 @@ verified absent from the client bundle — it is used only in the server route. 
 at build time, so the browser makes no third-party request. Runtime dependencies: `next`, `react`,
 `react-dom`, `zod`.
 
+The entire motion and glass layer is CSS: **6.4 KB gzipped of stylesheet in total, and zero added
+JavaScript.** Entrances use animation delays, the below-the-fold reveals use `animation-timeline:
+view()`, and the radar traces itself with a normalised `pathLength`. No observer, no animation
+runtime, nothing for the content-security policy to have to permit.
+
 **Testing** — 102 unit and accessibility tests plus 6 end-to-end tests. The scoring engine is tested
 at every band boundary, at the floor rule from both directions, across every calibration branch, and
 with 2 000 pseudo-random questionnaires asserting the invariants hold. `jest-axe` asserts zero
@@ -110,9 +115,17 @@ in CI.
 and screen-reader behaviour comes from the platform rather than from hand-rolled ARIA. Focus moves
 to the step heading on advance; unanswered questions surface as a focused error summary linking to
 each one. The radar carries `role="img"` with a shape description **and** publishes its six numbers
-as visible text, so the data is readable without the picture. AA contrast in light and dark,
-`prefers-reduced-motion` honoured, 44px targets, skip link, visible focus rings. One end-to-end test
-completes the entire questionnaire using only Tab, arrow keys and Enter.
+as visible text, so the data is readable without the picture. AA contrast in light and dark, 44px
+targets, skip link, visible focus rings. One end-to-end test completes the entire questionnaire using
+only Tab, arrow keys and Enter.
+
+Motion is held to the same bar. `prefers-reduced-motion: reduce` was checked in a real browser: every
+animated element rests at opacity 1 with an identity transform, and the drifting background stops
+outright rather than freezing mid-drift. The scroll reveal finishes as an element finishes entering
+the viewport, so readable text is never left sitting at reduced opacity. Glass panels keep a 72%
+opaque tint and treat `backdrop-filter` as enhancement — computed against the composited surface,
+body text lands at roughly 12:1 and muted text at 6:1 or better in both themes, so the blur is
+atmosphere and the surface underneath is still doing the contrast work.
 
 **Problem Statement Alignment** — Non-clinical vocabulary throughout ("reflection band", "areas to
 notice"). The disclaimer appears on the landing page, in the site footer and in its own panel on the

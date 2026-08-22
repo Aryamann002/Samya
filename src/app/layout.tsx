@@ -57,7 +57,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Skip to main content
         </a>
 
-        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 sm:px-6">
+        {/*
+          Ambient colour behind everything. Decorative only — hidden from
+          assistive technology and from print, and it stops moving entirely
+          when the visitor has asked for reduced motion.
+        */}
+        <div className="aurora no-print" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 sm:px-6">
           <header className="flex items-center justify-between py-5">
             <Link href="/" className="font-display text-lg font-medium tracking-tight text-ink">
               Sāmya

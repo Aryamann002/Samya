@@ -35,6 +35,24 @@
   --samya-accent: #306673;
   --samya-accent-container: #d7f0f7;
   --samya-focus: #14504a;
+
+  /*
+   * Glass surfaces.
+   *
+   * The tint is kept deliberately opaque (72%). Glassmorphism fails
+   * accessibility when the panel is thin enough for whatever is behind it to
+   * disturb the text, so the blur here is an atmosphere effect sitting on a
+   * surface that is still doing the contrast work by itself.
+   */
+  --samya-glass: rgb(255 255 255 / 0.72);
+  --samya-glass-border: rgb(255 255 255 / 0.6);
+  --samya-glass-shadow: 0 10px 30px -18px rgb(16 48 40 / 0.35);
+  --samya-glass-sheen: rgb(255 255 255 / 0.5);
+
+  /* Slow-drifting colour behind the page. Low alpha keeps text unaffected. */
+  --samya-glow-a: rgb(172 240 218 / 0.55);
+  --samya-glow-b: rgb(175 230 244 / 0.42);
+  --samya-glow-c: rgb(205 233 222 / 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,6 +72,15 @@
     --samya-accent: #a1d7e6;
     --samya-accent-container: #1d4a55;
     --samya-focus: #9ee2cc;
+
+    --samya-glass: rgb(24 32 29 / 0.68);
+    --samya-glass-border: rgb(158 226 204 / 0.16);
+    --samya-glass-shadow: 0 10px 30px -18px rgb(0 0 0 / 0.65);
+    --samya-glass-sheen: rgb(158 226 204 / 0.09);
+
+    --samya-glow-a: rgb(30 92 77 / 0.55);
+    --samya-glow-b: rgb(29 74 85 / 0.45);
+    --samya-glow-c: rgb(37 106 89 / 0.4);
   }
 }
 
@@ -135,6 +162,254 @@
     clip-path: inset(50%);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  /*
+   * Glass panel.
+   *
+   * `backdrop-filter` is progressive enhancement: where it is unsupported the
+   * panel falls back to the opaque surface colour, which is what the contrast
+   * ratios were checked against in the first place.
+   */
+  .glass {
+    background-color: var(--samya-glass);
+    border: 1px solid var(--samya-glass-border);
+    box-shadow: var(--samya-glass-shadow);
+    backdrop-filter: blur(16px) saturate(1.35);
+    -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass {
+      background-color: var(--samya-surface);
+    }
+  }
+
+  /* A one-pixel highlight along the top edge, the way real glass catches light. */
+  .glass-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-sheen::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--samya-glass-sheen), transparent);
+    pointer-events: none;
+  }
+}
+
+/* ---------------------------------------------------------------- motion */
+
+/*
+ * Everything below is CSS only. Sāmya has no animation library, and its
+ * content-security policy forbids the inline script an animation runtime would
+ * want anyway. The reduced-motion rule in the base layer collapses every
+ * duration here to effectively zero, and because each animation ends on the
+ * element's natural resting state, that leaves the page fully rendered rather
+ * than mid-transition.
+ */
+
+@keyframes samya-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes samya-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes samya-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes samya-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes samya-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes samya-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, -4%, 0) scale(1.12);
+  }
+}
+
+@layer utilities {
+  /* Entrance for content already on screen at load. */
+  .rise {
+    animation: samya-rise 0.7s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+  }
+
+  .scale-in {
+    animation: samya-scale-in 0.6s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+  }
+
+  .fade-in {
+    animation: samya-fade 0.8s ease-out both;
+  }
+
+  /*
+   * Scroll-driven reveal for content below the fold.
+   *
+   * Gated behind @supports on purpose: the starting keyframe is invisible, so
+   * in a browser without scroll-driven animations this rule must not apply at
+   * all or the content would never appear. Without support, the element simply
+   * renders — no observer, no JavaScript, no fallback to maintain.
+   */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: samya-rise linear both;
+        animation-timeline: view();
+        /*
+         * Finishes as the element finishes entering, rather than partway up
+         * the viewport. A longer range looks smoother but leaves readable text
+         * sitting at reduced opacity — which is a contrast regression on
+         * content the reader is already looking at.
+         */
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+
+  /*
+   * The radar drawing itself: grid first, then the outline traces around,
+   * then the fill washes in and the vertices land one at a time. Ordered so
+   * the shape reads as being measured out rather than stamped down.
+   */
+  .radar-grid {
+    animation: samya-fade 0.6s ease-out both;
+  }
+
+  .radar-stroke {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: samya-draw 1.2s 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .radar-fill {
+    animation: samya-fade 0.9s 0.6s ease-out both;
+  }
+
+  .radar-dots circle {
+    /* Without fill-box the scale would pivot on the SVG origin, not the dot. */
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: samya-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .radar-dots circle:nth-child(1) {
+    animation-delay: 0.75s;
+  }
+  .radar-dots circle:nth-child(2) {
+    animation-delay: 0.83s;
+  }
+  .radar-dots circle:nth-child(3) {
+    animation-delay: 0.91s;
+  }
+  .radar-dots circle:nth-child(4) {
+    animation-delay: 0.99s;
+  }
+  .radar-dots circle:nth-child(5) {
+    animation-delay: 1.07s;
+  }
+  .radar-dots circle:nth-child(6) {
+    animation-delay: 1.15s;
+  }
+
+  .radar-labels {
+    animation: samya-fade 0.7s 0.5s ease-out both;
+  }
+}
+
+/* Ambient colour drifting behind the page. Purely decorative. */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aurora span {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  filter: blur(72px);
+  will-change: transform;
+  animation: samya-drift 24s ease-in-out infinite alternate;
+}
+
+.aurora span:nth-child(1) {
+  width: 34rem;
+  height: 34rem;
+  top: -12rem;
+  left: -10rem;
+  background: var(--samya-glow-a);
+}
+
+.aurora span:nth-child(2) {
+  width: 28rem;
+  height: 28rem;
+  top: 20%;
+  right: -12rem;
+  background: var(--samya-glow-b);
+  animation-duration: 31s;
+  animation-direction: alternate-reverse;
+}
+
+.aurora span:nth-child(3) {
+  width: 30rem;
+  height: 30rem;
+  bottom: -14rem;
+  left: 25%;
+  background: var(--samya-glow-c);
+  animation-duration: 38s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * The base layer collapses the duration, which would freeze the blobs
+   * mid-drift. Stop them at their resting position instead.
+   */
+  .aurora span {
+    animation: none;
   }
 }
 

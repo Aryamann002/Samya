@@ -70,65 +70,83 @@ export function RadarChart({ axes }: { axes: Readonly<Record<Axis, number>> }) {
           {`A larger shape means a healthier reading. Your highest area is ${AXIS_LABELS[highest]} at ${axes[highest]} out of 100 and your lowest is ${AXIS_LABELS[lowest]} at ${axes[lowest]} out of 100. Every value is listed as text below the chart.`}
         </desc>
 
-        {/* Rings */}
-        {Array.from({ length: RINGS }, (_, ring) => (
-          <polygon
-            key={ring}
-            points={polygonPoints(AXES.map(() => (RADIUS * (ring + 1)) / RINGS))}
-            fill="none"
-            stroke="var(--samya-outline-faint)"
-            strokeWidth={1}
-          />
-        ))}
-
-        {/* Spokes */}
-        {AXES.map((axis, index) => {
-          const { x, y } = pointAt(index, RADIUS);
-          return (
-            <line
-              key={axis}
-              x1={CX}
-              y1={CY}
-              x2={x}
-              y2={y}
+        <g className="radar-grid">
+          {/* Rings */}
+          {Array.from({ length: RINGS }, (_, ring) => (
+            <polygon
+              key={ring}
+              points={polygonPoints(AXES.map(() => (RADIUS * (ring + 1)) / RINGS))}
+              fill="none"
               stroke="var(--samya-outline-faint)"
               strokeWidth={1}
             />
-          );
-        })}
+          ))}
 
-        {/* The reading itself */}
+          {/* Spokes */}
+          {AXES.map((axis, index) => {
+            const { x, y } = pointAt(index, RADIUS);
+            return (
+              <line
+                key={axis}
+                x1={CX}
+                y1={CY}
+                x2={x}
+                y2={y}
+                stroke="var(--samya-outline-faint)"
+                strokeWidth={1}
+              />
+            );
+          })}
+        </g>
+
+        {/*
+          The reading is drawn as two polygons rather than one so the outline
+          can trace itself while the fill washes in behind it. `pathLength={1}`
+          normalises the perimeter, which lets one dash offset animate any
+          shape without measuring it.
+        */}
         <polygon
+          className="radar-fill"
           points={polygonPoints(dataRadii)}
           fill="var(--samya-primary)"
           fillOpacity={0.2}
+        />
+        <polygon
+          className="radar-stroke"
+          points={polygonPoints(dataRadii)}
+          pathLength={1}
+          fill="none"
           stroke="var(--samya-primary)"
           strokeWidth={2}
           strokeLinejoin="round"
         />
 
-        {dataRadii.map((radius, index) => {
-          const { x, y } = pointAt(index, radius);
-          return <circle key={AXES[index]} cx={x} cy={y} r={3.5} fill="var(--samya-primary)" />;
-        })}
+        <g className="radar-dots">
+          {dataRadii.map((radius, index) => {
+            const { x, y } = pointAt(index, radius);
+            return <circle key={AXES[index]} cx={x} cy={y} r={3.5} fill="var(--samya-primary)" />;
+          })}
+        </g>
 
         {/* Axis labels */}
-        {AXES.map((axis, index) => {
-          const { x, y } = pointAt(index, LABEL_RADIUS);
-          return (
-            <text
-              key={axis}
-              x={x}
-              y={y}
-              textAnchor={anchorFor(index)}
-              dominantBaseline="middle"
-              fontSize={13}
-              fill="var(--samya-on-surface-muted)"
-            >
-              {SHORT_LABELS[axis]}
-            </text>
-          );
-        })}
+        <g className="radar-labels">
+          {AXES.map((axis, index) => {
+            const { x, y } = pointAt(index, LABEL_RADIUS);
+            return (
+              <text
+                key={axis}
+                x={x}
+                y={y}
+                textAnchor={anchorFor(index)}
+                dominantBaseline="middle"
+                fontSize={13}
+                fill="var(--samya-on-surface-muted)"
+              >
+                {SHORT_LABELS[axis]}
+              </text>
+            );
+          })}
+        </g>
       </svg>
 
       <figcaption className="mt-4">
