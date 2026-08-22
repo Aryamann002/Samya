@@ -91,10 +91,14 @@ Full notes in [SECURITY.md](./SECURITY.md).
 question bank is data, so adding a question touches one array and the wizard, radar, scorer and
 rubric page all follow.
 
-**Efficiency** — The radar is ~90 lines of hand-written SVG rather than a charting library, saving
-roughly 90 KB gzipped. No state library, no animation library, no icon library, no UI kit. Fonts are
-self-hosted at build time, so the browser makes no third-party request. Runtime dependencies:
-`next`, `react`, `react-dom`, `zod`.
+**Efficiency** — Measured on a production build: **171 KB gzipped on `/`, 178 KB on `/assess`,
+182 KB on `/result`**, of which roughly 16 KB is Sāmya's own code and the remainder is the Next 16
+and React 19 runtime. (About 38 KB of each figure is the `noModule` legacy bundle, which a modern
+browser never executes.) The radar is ~90 lines of hand-written SVG rather than a charting
+dependency; there is no state library, no animation library, no icon library and no UI kit. `zod` is
+verified absent from the client bundle — it is used only in the server route. Fonts are self-hosted
+at build time, so the browser makes no third-party request. Runtime dependencies: `next`, `react`,
+`react-dom`, `zod`.
 
 **Testing** — 102 unit and accessibility tests plus 6 end-to-end tests. The scoring engine is tested
 at every band boundary, at the floor rule from both directions, across every calibration branch, and

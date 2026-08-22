@@ -79,8 +79,9 @@ than silently decoding them into the wrong answers.
 - **No accounts, no history, no trend view.** Each of these requires identity or storage, which
   would dismantle the privacy property that makes the rest defensible. The Stitch design proposed a
   bottom tab bar with a Profile tab; it was not implemented for this reason.
-- **No charting library.** ~90 lines of SVG replaced ~90 KB gzipped and gave full control of the
-  accessible markup.
+- **No charting library.** ~90 lines of SVG instead, which gave full control of the accessible
+  markup and kept a dependency out of the client bundle. Measured client JS is 171–182 KB gzipped
+  per page, of which ~16 KB is Sāmya's own code; the rest is the Next and React runtime.
 - **No red/amber/green scale.** A traffic light reads as medical triage. Bands are distinguished by
   tone, label and wording.
 - **No free-text input anywhere.** This is what makes PII collection impossible rather than merely
