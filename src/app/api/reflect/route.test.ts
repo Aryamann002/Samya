@@ -127,9 +127,9 @@ describe("POST /api/reflect", () => {
 
   it("never sends anything but the six numbers and the band to the model", async () => {
     process.env.GEMINI_API_KEY = "test-key";
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ candidates: [] }), { status: 200 }),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify({ candidates: [] }), { status: 200 }));
 
     const { POST } = await loadRoute();
     await POST(post(VALID_BODY));

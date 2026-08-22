@@ -15,6 +15,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/lib/**/*.ts"],
+      // Test scaffolding and type-only modules are not the code under test.
+      exclude: ["src/lib/test-utils.ts", "src/lib/types.ts", "src/lib/**/*.test.ts"],
       thresholds: { lines: 95, functions: 95, branches: 90, statements: 95 },
     },
   },

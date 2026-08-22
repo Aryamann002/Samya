@@ -1,6 +1,13 @@
 import { calibrate } from "./calibration";
 import { QUESTIONS, QUESTIONS_BY_ID } from "./questions";
-import { AXES, type Answers, type Assessment, type Axis, type Band, type Calibration } from "./types";
+import {
+  AXES,
+  type Answers,
+  type Assessment,
+  type Axis,
+  type Band,
+  type Calibration,
+} from "./types";
 import type { ContextKey } from "./types";
 
 /**

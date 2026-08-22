@@ -45,9 +45,7 @@ export function encodeAnswers(answers: Answers): string {
 
     const answer = answers[question.id];
     const index =
-      answer === undefined
-        ? -1
-        : question.options.findIndex((option) => option.value === answer);
+      answer === undefined ? -1 : question.options.findIndex((option) => option.value === answer);
 
     if (index < 0) throw new Error(`Question "${question.id}" is unanswered`);
     digits.push(String(index));

@@ -16,10 +16,12 @@ export const reflectRequestSchema = z
   .object({
     band: z.enum(BANDS),
     composite: axisValue,
-    axes: z.object(Object.fromEntries(AXES.map((axis) => [axis, axisValue])) as Record<
-      (typeof AXES)[number],
-      typeof axisValue
-    >),
+    axes: z.object(
+      Object.fromEntries(AXES.map((axis) => [axis, axisValue])) as Record<
+        (typeof AXES)[number],
+        typeof axisValue
+      >,
+    ),
   })
   .strict();
 

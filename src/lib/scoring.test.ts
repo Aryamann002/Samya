@@ -4,7 +4,10 @@ import {
   STEADY_CUTOFF,
   WATCH_CUTOFF,
   deriveBand,
+  findQuestion,
+  isComplete,
   scoreAnswers,
+  unansweredOnStep,
 } from "./scoring";
 import { calibrate } from "./calibration";
 import { QUESTIONS } from "./questions";
@@ -263,5 +266,37 @@ describe("calibrate", () => {
 
   it("never reacts to CGPA", () => {
     expect(calibrate({ cgpa: "9to10" })).toEqual(calibrate({ cgpa: "below6" }));
+  });
+});
+
+describe("wizard helpers", () => {
+  it("reports a questionnaire complete only when every scored question is answered", () => {
+    expect(isComplete(answersAt(2))).toBe(true);
+
+    const partial = { ...answersAt(2) } as Record<string, string>;
+    delete partial.mood_overwhelm;
+    expect(isComplete(partial)).toBe(false);
+  });
+
+  it("treats unanswered context questions as complete", () => {
+    const noContext = Object.fromEntries(
+      Object.entries(answersAt(2)).filter(([id]) => !id.startsWith("ctx_")),
+    );
+    expect(isComplete(noContext)).toBe(true);
+  });
+
+  it("lists the unanswered questions on a step and nothing from other steps", () => {
+    expect(unansweredOnStep({}, 2)).toEqual([
+      "sleep_hours",
+      "sleep_quality",
+      "sleep_consistency",
+      "sleep_screen",
+    ]);
+    expect(unansweredOnStep(answersAt(2), 2)).toEqual([]);
+  });
+
+  it("finds a question by id and returns undefined for an unknown one", () => {
+    expect(findQuestion("sleep_hours")?.axis).toBe("sleep");
+    expect(findQuestion("nope")).toBeUndefined();
   });
 });

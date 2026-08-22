@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { ChoiceChips } from "./ChoiceChips";
 import { ChoiceSelect } from "./ChoiceSelect";
 import { ProgressBar } from "./ProgressBar";
-import { QUESTIONS_BY_ID, STEPS, STEP_BLURBS, STEP_TITLES, questionsForStep } from "@/lib/questions";
+import {
+  QUESTIONS_BY_ID,
+  STEPS,
+  STEP_BLURBS,
+  STEP_TITLES,
+  questionsForStep,
+} from "@/lib/questions";
 import { unansweredOnStep } from "@/lib/scoring";
 import { encodeAnswers } from "@/lib/share";
 import { useAnswers } from "@/store/session";
@@ -15,7 +21,7 @@ const LAST_STEP = STEPS[STEPS.length - 1] ?? 5;
 
 export function Wizard() {
   const router = useRouter();
-  const { answers, answer, restored } = useAnswers();
+  const { answers, answer } = useAnswers();
 
   const [step, setStep] = useState<StepNumber>(1);
   const [missing, setMissing] = useState<readonly string[]>([]);
@@ -57,12 +63,6 @@ export function Wizard() {
 
     // The token lives in the fragment, so the answers never reach a server log.
     router.push(`/result#${encodeAnswers(answers)}`);
-  }
-
-  if (!restored) {
-    // One frame before the draft is read. Rendering the questions here would
-    // flash every chip from unanswered to answered.
-    return <p className="py-12 text-ink-muted">Loading your answers…</p>;
   }
 
   return (

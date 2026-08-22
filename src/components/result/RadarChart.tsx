@@ -109,9 +109,7 @@ export function RadarChart({ axes }: { axes: Readonly<Record<Axis, number>> }) {
 
         {dataRadii.map((radius, index) => {
           const { x, y } = pointAt(index, radius);
-          return (
-            <circle key={AXES[index]} cx={x} cy={y} r={3.5} fill="var(--samya-primary)" />
-          );
+          return <circle key={AXES[index]} cx={x} cy={y} r={3.5} fill="var(--samya-primary)" />;
         })}
 
         {/* Axis labels */}

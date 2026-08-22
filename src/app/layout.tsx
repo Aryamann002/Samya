@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import type { Metadata, Viewport } from "next";
 import { Lexend } from "next/font/google";
 import Link from "next/link";
@@ -33,7 +34,19 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Reading the per-request nonce here is what makes Next stamp it onto the
+ * inline flight scripts it emits. That opts the app into per-request
+ * rendering, which is the price of a `script-src` with no `unsafe-inline`:
+ * a nonce cannot be baked into a prerendered file.
+ *
+ * The pages hold no data and fetch nothing, so the render is a few
+ * milliseconds of template work and the payload is unchanged.
+ */
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Read for its side effect on rendering; Next injects the value itself.
+  void (await headers()).get("x-nonce");
+
   return (
     <html lang="en" className={lexend.variable}>
       <body className="min-h-dvh antialiased">
@@ -46,10 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 sm:px-6">
           <header className="flex items-center justify-between py-5">
-            <Link
-              href="/"
-              className="font-display text-lg font-medium tracking-tight text-ink"
-            >
+            <Link href="/" className="font-display text-lg font-medium tracking-tight text-ink">
               Sāmya
             </Link>
             <Link

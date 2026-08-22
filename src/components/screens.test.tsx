@@ -30,7 +30,10 @@ beforeEach(() => {
  * "Rarely" legitimately repeat across questions, so a page-wide lookup is
  * ambiguous by design rather than by mistake.
  */
-async function answerCurrentStep(user: ReturnType<typeof userEvent.setup>, step: 1 | 2 | 3 | 4 | 5) {
+async function answerCurrentStep(
+  user: ReturnType<typeof userEvent.setup>,
+  step: 1 | 2 | 3 | 4 | 5,
+) {
   for (const question of questionsForStep(step)) {
     const first = question.options[0];
     if (first === undefined) continue;

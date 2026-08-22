@@ -18,8 +18,8 @@ export default function HomePage() {
         </h1>
         <p className="max-w-prose text-lg text-ink-muted">
           Answer {SCORED_QUESTIONS} tap-to-select questions about sleep, study, workload, mood,
-          support and daily routine. Sāmya reflects your own answers back to you across six areas
-          — and shows you exactly how it worked them out.
+          support and daily routine. Sāmya reflects your own answers back to you across six areas —
+          and shows you exactly how it worked them out.
         </p>
 
         <div className="flex flex-wrap items-center gap-4 pt-2">

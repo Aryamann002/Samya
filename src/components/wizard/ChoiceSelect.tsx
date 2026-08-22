@@ -25,10 +25,7 @@ export function ChoiceSelect({
 
   return (
     <div id={`q-${question.id}`} className="scroll-mt-24">
-      <label
-        htmlFor={question.id}
-        className="block font-display text-lg font-medium text-ink"
-      >
+      <label htmlFor={question.id} className="block font-display text-lg font-medium text-ink">
         {question.prompt}
       </label>
 

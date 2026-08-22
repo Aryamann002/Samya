@@ -36,7 +36,10 @@ export function BandCard({
   weakestLabel: string;
 }) {
   return (
-    <section aria-labelledby="band-heading" className={`rounded-3xl p-6 sm:p-8 ${BAND_TONE[assessment.band]}`}>
+    <section
+      aria-labelledby="band-heading"
+      className={`rounded-3xl p-6 sm:p-8 ${BAND_TONE[assessment.band]}`}
+    >
       <p className="text-sm uppercase tracking-widest opacity-80">Your reflection band</p>
       <h2 id="band-heading" className="mt-1 font-display text-3xl font-semibold sm:text-4xl">
         {title}

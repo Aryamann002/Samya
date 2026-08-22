@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { RadarChart } from "./RadarChart";
 import { ActionList, BandCard, ExportBar, FindingCard, ResourceBlock } from "./ResultSections";
@@ -9,10 +9,19 @@ import { scoreAnswers } from "@/lib/scoring";
 import { decodeAnswers } from "@/lib/share";
 import { AXIS_LABELS, type Answers } from "@/lib/types";
 
-type Loaded =
-  | { status: "loading" }
-  | { status: "empty" }
-  | { status: "ready"; answers: Answers };
+function subscribeToHash(onChange: () => void): () => void {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+
+function readHash(): string {
+  return window.location.hash.replace(/^#/, "");
+}
+
+/** No fragment exists on the server; `null` is what distinguishes "not read yet". */
+function noHashOnServer(): null {
+  return null;
+}
 
 /**
  * Reads the result out of the URL fragment and renders it.
@@ -23,19 +32,17 @@ type Loaded =
  * same rules, with no storage involved.
  */
 export function ResultView() {
-  const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
+  const token = useSyncExternalStore(subscribeToHash, readHash, noHashOnServer);
+  const answers: Answers | null = useMemo(
+    () => (token === null || token === "" ? null : decodeAnswers(token)),
+    [token],
+  );
 
-  useEffect(() => {
-    const token = window.location.hash.replace(/^#/, "");
-    const answers = token === "" ? null : decodeAnswers(token);
-    setLoaded(answers === null ? { status: "empty" } : { status: "ready", answers });
-  }, []);
-
-  if (loaded.status === "loading") {
+  if (token === null) {
     return <p className="py-12 text-ink-muted">Reading your answers…</p>;
   }
 
-  if (loaded.status === "empty") {
+  if (answers === null) {
     return (
       <div className="space-y-4 py-12">
         <h1 className="text-3xl font-semibold text-ink">There is nothing to show yet</h1>
@@ -53,7 +60,7 @@ export function ResultView() {
     );
   }
 
-  return <Result answers={loaded.answers} />;
+  return <Result answers={answers} />;
 }
 
 function Result({ answers }: { answers: Answers }) {

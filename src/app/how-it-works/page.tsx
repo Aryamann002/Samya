@@ -59,8 +59,10 @@ export default function HowItWorksPage() {
           </li>
           <li>
             <strong className="text-ink">{STEADY_CUTOFF} or above</strong> reads as Steady,{" "}
-            <strong className="text-ink">{WATCH_CUTOFF} to {STEADY_CUTOFF - 1}</strong> as Worth
-            watching, and below {WATCH_CUTOFF} as Strained.
+            <strong className="text-ink">
+              {WATCH_CUTOFF} to {STEADY_CUTOFF - 1}
+            </strong>{" "}
+            as Worth watching, and below {WATCH_CUTOFF} as Strained.
           </li>
           <li>
             <strong className="text-ink">The floor rule.</strong> If any single area falls below{" "}
