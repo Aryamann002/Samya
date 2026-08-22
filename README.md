@@ -43,7 +43,7 @@ src/
     findings.ts     scores → per-area findings, three actions, plain-text summary
     share.ts        result ⇄ URL fragment token, fingerprinted to the question bank
     schema.ts       zod contract for the one API route
-    resources.ts    support helplines  ⚠️ verify before every deploy
+    resources.ts    support helplines  ⚠️ re-check before every deploy
   components/   wizard and result UI
   store/        the in-progress draft, via useSyncExternalStore over sessionStorage
   app/          routes; api/reflect is the only server surface
@@ -105,7 +105,7 @@ JavaScript.** Entrances use animation delays, the below-the-fold reveals use `an
 view()`, and the radar traces itself with a normalised `pathLength`. No observer, no animation
 runtime, nothing for the content-security policy to have to permit.
 
-**Testing** — 102 unit and accessibility tests plus 6 end-to-end tests. The scoring engine is tested
+**Testing** — 111 unit and accessibility tests plus 6 end-to-end tests. The scoring engine is tested
 at every band boundary, at the floor rule from both directions, across every calibration branch, and
 with 2 000 pseudo-random questionnaires asserting the invariants hold. `jest-axe` asserts zero
 violations on every screen, including the error state. Coverage thresholds on `src/lib` are enforced
@@ -150,7 +150,9 @@ cp .env.example .env.local   # then add your key, or don't — the app works eit
 
 ## Before deploying
 
-- [ ] **Verify every number in `src/lib/resources.ts`** against its official source and update
-      `RESOURCES_VERIFIED_ON`. A dead helpline is the one genuinely harmful failure this app has.
+- [ ] **Re-check every number in `src/lib/resources.ts`** against its official source and update
+      `RESOURCES_VERIFIED_ON`. Confirmed correct on 2026-08-22; helplines change numbers and hours,
+      so this is a recurring check, not a box ticked once. A dead helpline is the one genuinely
+      harmful failure this app has.
 - [ ] `npm run verify && npm run build && npm run test:e2e`
 - [ ] `npm audit --omit=dev`

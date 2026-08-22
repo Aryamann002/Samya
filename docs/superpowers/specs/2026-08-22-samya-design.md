@@ -94,5 +94,7 @@ than silently decoding them into the wrong answers.
 - The API rate limit is process-local (documented in `SECURITY.md` with its upgrade path).
 - `style-src` permits `unsafe-inline`; `script-src` does not. The reasoning is recorded in
   `SECURITY.md`.
-- **Helpline numbers in `src/lib/resources.ts` require manual verification before each deploy.** The
-  file carries a `RESOURCES_VERIFIED_ON` marker that is currently unset.
+- **Helpline numbers in `src/lib/resources.ts` require manual re-verification before each deploy.**
+  Confirmed correct by the project owner on 2026-08-22; the `RESOURCES_VERIFIED_ON` marker records
+  that date, and a test fails if it is ever replaced with prose. Only a person can confirm a number
+  still rings, so this stays a standing check rather than something the suite can own.
